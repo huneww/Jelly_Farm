@@ -3,15 +3,15 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.EventSystems;
 
-public class test : MonoBehaviour, IPointerClickHandler
+public class test : MonoBehaviour, IPointerEnterHandler, IPointerUpHandler
 {
-    public void OnPointerClick(PointerEventData eventData)
+    public void OnPointerEnter(PointerEventData eventData)
     {
-        Debug.Log("Touch");
+        Debug.Log("Enter");
     }
 
-    void Start()
+    public void OnPointerUp(PointerEventData eventData)
     {
-
+        Debug.Log("PointerUp");
     }
 }
