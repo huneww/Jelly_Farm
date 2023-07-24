@@ -63,15 +63,63 @@ public class GameManager : MonoBehaviour
     private Text goldText;
 
     [Space(20), Header("젤리 관련")]
+    [SerializeField, Tooltip("젤리 보유 가능 수")]
+    private int jellyMaxVolume = 2;
+    // 젤리 최대 보유량 프로퍼티
+    public int JellyMaxVolume
+    {
+        get
+        {
+            return jellyMaxVolume;
+        }
+        set
+        {
+            jellyMaxVolume = value;
+        }
+    }
+
+    [SerializeField, Tooltip("현재 제리 보유 수")]
+    private int curJellyVolume = 0;
+    // 젤리 현재 보유량 프로퍼티
+    public int CurJellyVolume
+    {
+        get
+        {
+            return curJellyVolume;
+        }
+        set
+        {
+            curJellyVolume = value;
+        }
+    }
+
+    [SerializeField, Tooltip("젤리 클릭시 젤리 획득량 배수")]
+    private int clickCount;
+    // 젤리 클릭시 젤리 획득량 배수
+    public int ClickCount
+    {
+        get
+        {
+            return clickCount;
+        }
+        set
+        {
+            clickCount = value;
+        }
+    }
 
     [Tooltip("젤리 이동 영역")]
     public BoxCollider2D jellyBoundBox;
+
     [SerializeField, Tooltip("마우스 클릭시 추출할 레이어")]
     private LayerMask jellyMask;
+
     [SerializeField, Tooltip("재화가 증가하는데 걸리는 시간")]
     private float moneyIncreaseTime = 1f;
+
     [Tooltip("젤리 애니메이터 컨트롤러")]
     public AnimatorController[] jellyAnimator;
+
     [SerializeField, Tooltip("젤리를 팔수 있는 상태인지 확인 변수")]
     private bool isSell;
     // 젤리를 팔수 있는 상태 확인 변수의 프로퍼티
@@ -86,6 +134,7 @@ public class GameManager : MonoBehaviour
             isSell = value;
         }
     }
+
     [SerializeField, Tooltip("드래그 하고있는 젤리")]
     private GameObject selectJelly;
     // 선택한 젤리 프로퍼티
@@ -105,8 +154,8 @@ public class GameManager : MonoBehaviour
     {
         DontDestroyOnLoad(gameObject);
 
-        jellyText.text = "0";
-        goldText.text = "0";
+        jellyText.text = string.Format("{0:#,###0}", jellyMoney);
+        goldText.text = string.Format("{0:#,###0}", goldMoney);
     }
 
     /// <summary>
@@ -115,7 +164,7 @@ public class GameManager : MonoBehaviour
     /// <param name="beforJelly">증가하기 이전의 재화</param>
     /// <param name="curJelly">현재 재화</param>
     /// <returns></returns>
-    public IEnumerator UpJellyText(int beforJelly, int curJelly)
+    public IEnumerator UpDownJellyText(int beforJelly, int curJelly)
     {
         // 경과 시간 저장 변수
         float curTime = 0f;
@@ -146,7 +195,7 @@ public class GameManager : MonoBehaviour
     /// <param name="beforGold">증가하기 이전의 재화</param>
     /// <param name="curGold">현재 재화</param>
     /// <returns></returns>
-    public IEnumerator UpGoldText(int beforGold, int curGold, GameObject jelly)
+    public IEnumerator UpDownGoldText(int beforGold, int curGold, GameObject jelly = null)
     {
         // 경과 시간 저장 변수
         float curTime = 0f;
@@ -155,10 +204,13 @@ public class GameManager : MonoBehaviour
         // 현재 까지 증가한 재화 저장 변수
         int gold = 0;
 
-        // 젤리 알파값 0으로 조정
-        Color color = jelly.GetComponent<SpriteRenderer>().color;
-        color.a = 0;
-        jelly.GetComponent<SpriteRenderer>().color = color;
+        if (jelly != null)
+        {
+            // 젤리 알파값 0으로 조정
+            Color color = jelly.GetComponent<SpriteRenderer>().color;
+            color.a = 0;
+            jelly.GetComponent<SpriteRenderer>().color = color;
+        }
 
         while (percent <= 1f)
         {
@@ -173,7 +225,21 @@ public class GameManager : MonoBehaviour
             yield return null;
         }
 
-        // 돈이 전부 올라가면 그때 젤리 오브젝트 파괴
-        Destroy(jelly);
+
+        if (jelly != null)
+        {
+            // 돈이 전부 올라가면 그때 젤리 오브젝트 풀에 반환
+            JellySpawner.Instance.JellyDiSpawn(jelly);
+        }
     }
+
+    /// <summary>
+    /// 현재 젤리 수용량 확인 메서드
+    /// </summary>
+    /// <returns></returns>
+    public bool JellyVolumeCheck()
+    {
+        return curJellyVolume < jellyMaxVolume ? true : false;
+    }
+
 }
