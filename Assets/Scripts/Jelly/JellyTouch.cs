@@ -91,6 +91,9 @@ public class JellyTouch : MonoBehaviour
                                        GameManager.Instance.GoldMoney, this.gameObject));
                 // 현재 젤리 보유 수량 감소
                 GameManager.Instance.CurJellyVolume--;
+
+                // 판매 효과음 재생
+                AudioManager.PlaySFXAudioSource(SFX.Sell);
             }
             else
             {
@@ -122,6 +125,9 @@ public class JellyTouch : MonoBehaviour
     /// </summary>
     public void Touch()
     {
+        // 터치 효과음 재생
+        AudioManager.PlaySFXAudioSource(SFX.Touch);
+
         // 애니메이션 변경
         animator.SetTrigger("doTouch");
 
@@ -143,6 +149,8 @@ public class JellyTouch : MonoBehaviour
             animator.runtimeAnimatorController = GameManager.Instance.jellyAnimator[1];
             // 젤리 레벨 증가
             jelly.level = 2;
+            // 성장 효과음 재생
+            AudioManager.PlaySFXAudioSource(SFX.Grow);
         }
         // 터치 카운트가 50이상이고 애니메이터 컨트롤러가 2레벨 컨트롤러라면
         if (touchCount >= 50 && animator.runtimeAnimatorController == GameManager.Instance.jellyAnimator[1])
@@ -151,6 +159,8 @@ public class JellyTouch : MonoBehaviour
             animator.runtimeAnimatorController = GameManager.Instance.jellyAnimator[2];
             // 젤리 레벨 증가
             jelly.level = 3;
+            // 성장 효과음 재생
+            AudioManager.PlaySFXAudioSource(SFX.Grow);
         }
     }
 

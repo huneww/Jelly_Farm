@@ -1,3 +1,4 @@
+using Date;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -117,6 +118,9 @@ public class UIManager : MonoBehaviour
             // jellyPanelIsShow 값 변경
             jellyPanelIsShow = false;
         }
+
+        // 버튼 클릭 효과음 재생
+        AudioManager.PlaySFXAudioSource(SFX.Button);
     }
 
     // 플레이트 상점 버튼 클릭
@@ -146,6 +150,9 @@ public class UIManager : MonoBehaviour
             // platePanelIsShow 값 변경
             platePanelIsShow = false;
         }
+
+        // 버튼 클릭 효과음 재생
+        AudioManager.PlaySFXAudioSource(SFX.Button);
     }
 
     // 젤링 상점 오른쪽 활살표 클릭
@@ -162,6 +169,9 @@ public class UIManager : MonoBehaviour
             // 메서드 종료
             return;
         }
+
+        // 버튼 클릭 효과음 재생
+        AudioManager.PlaySFXAudioSource(SFX.Button);
 
         // 젤리 상점 정보 변경
         JellyShopInfoChange();
@@ -181,6 +191,9 @@ public class UIManager : MonoBehaviour
             // 메서드 종료
             return;
         }
+
+        // 버튼 클릭 효과음 재생
+        AudioManager.PlaySFXAudioSource(SFX.Button);
 
         // 젤리 상점 정보 변경
         JellyShopInfoChange();
@@ -202,9 +215,31 @@ public class UIManager : MonoBehaviour
             StartCoroutine(GameManager.Instance.UpDownJellyText(
                            GameManager.Instance.JellyMoney + jellyUnlockPayList[curJellyView],
                            GameManager.Instance.JellyMoney));
+            // 해금 효과음 재생
+            AudioManager.PlaySFXAudioSource(SFX.Unlock);
+
+            // 현재 저장된 isLock비트값을 가져온다
+            int bitvalue = DateLoad.GetIntDate(nameof(isLock));
+            // 구매한 젤리의 인덱스 번호만큼 비트를 좌측으로 이동시킨후
+            // OR 연산자를 이용해서 bitvalue에 저장한다.
+            /*
+                ex)
+                bitvalue = 1;
+                비트 표시 : 0000 0001
+                curJellyView = 3;
+                비트 표시 : 0000 0100
+
+                OR 연산후 : 000 0101   
+            */
+            // 1에서 비트연산을 하게되면 의도한것보다 한칸더 이동하게 된다
+            bitvalue = bitvalue | (0 << curJellyView);
+            // 변경된 비트값을 다시 저장
+            DateSave.SetDate(nameof(isLock), bitvalue);
         }
         else
         {
+            // 구매 실패 사운드 실행
+            AudioManager.PlaySFXAudioSource(SFX.Fail);
             Debug.Log("Not Enught Jelly");
         }
     }
@@ -223,8 +258,15 @@ public class UIManager : MonoBehaviour
             StartCoroutine(GameManager.Instance.UpDownGoldText(
                            GameManager.Instance.GoldMoney + jellyBuyPayList[curJellyView],
                            GameManager.Instance.GoldMoney));
-
+            // 현재 수용중인 젤리 수량 증가
             GameManager.Instance.CurJellyVolume++;
+            // 구매 효과음 재생
+            AudioManager.PlaySFXAudioSource(SFX.Buy);
+        }
+        else
+        {
+            // 구매 실패 효과음 재생
+            AudioManager.PlaySFXAudioSource(SFX.Fail);
         }
     }
 
@@ -261,6 +303,7 @@ public class UIManager : MonoBehaviour
             curJellyIndex.text = "#" + (curJellyView + 1).ToString();
     }
 
+    // 젤리 수용량 증가 버튼
     public void JellySizeButtonClick()
     {
         // 현재 보유 골드가 업그레이드 비용보다 크거나 같으면
@@ -276,12 +319,18 @@ public class UIManager : MonoBehaviour
                            GameManager.Instance.GoldMoney));
             // 젤리 최대 수용량 증가
             GameManager.Instance.JellyMaxVolume = jellySizeLevel * 2;
+            // 구매 효과음 재생
+            AudioManager.PlaySFXAudioSource(SFX.Buy);
+            // 데이터 저장
+            DateSave.SetDate(nameof(jellySizeLevel), jellySizeLevel);
         }
 
+        // 플레이트 상점 정보 갱신
         PlayerStateShopInfoChange();
 
     }
 
+    // 클릭당 획득 수량
     public void ClickCountButtonClick()
     {
         // 현재 보유 골드가 업그레이드 비용보다 크거나 같으면
@@ -297,11 +346,17 @@ public class UIManager : MonoBehaviour
                            GameManager.Instance.GoldMoney));
             // 클릭시 획득량 배수 변수 증가
             GameManager.Instance.ClickCount = clickLevel;
+            // 구매 효과음 재생
+            AudioManager.PlaySFXAudioSource(SFX.Buy);
+            // 데이터 저장
+            DateSave.SetDate(nameof(clickLevel), clickLevel);
         }
 
+        // 플레이트 상점 정보 갱신
         PlayerStateShopInfoChange();
     }
 
+    // 플레이어 스텟 상점 정보
     private void PlayerStateShopInfoChange()
     {
         jellySizeSubText.text = "젤리 수용량 " + (jellySizeLevel * 2);
@@ -323,18 +378,38 @@ public class UIManager : MonoBehaviour
             optionObject.SetActive(optionPanelIsShow);
             // optionPanelIsShow 값에 따라 timeScale 값 조절
             Time.timeScale = optionPanelIsShow ? 0 : 1;
+            // 옵션 UI 활성화 비활성화 효과음 재생
+            AudioManager.PlaySFXAudioSource(optionPanelIsShow ? SFX.PauseIn : SFX.PauseOut);
         }
+    }
+
+    // 돌아가기 버튼 클릭
+    public void OptionBackGameButtonClick()
+    {
+        // optionPanelIsShow 값 반전
+        optionPanelIsShow = !optionPanelIsShow;
+        // 옵션 UI 활성화 또는 비활성화
+        optionObject.SetActive(optionPanelIsShow);
+        // optionPanelIsShow 값에 따라 timeScale 값 조절
+        Time.timeScale = optionPanelIsShow ? 0 : 1;
+        // 옵션 UI 활성화 비활성화 효과음 재생
+        AudioManager.PlaySFXAudioSource(optionPanelIsShow ? SFX.PauseIn : SFX.PauseOut);
+    }
+
+    // 게임 종료 버튼 클릭
+    public void OptionExitGameButtonClick()
+    {
+        Application.Quit();
     }
 
     private void Start()
     {
         // 현재 젤리 스프라이트 리스트 크기만큼 메모리 할당
         isLock = new bool[jellySpriteList.Length];
-        // 첫 번째 슬라임은 기본 해금
-        isLock[0] = false;
-        // 이외의 슬라임은 잠금
-        for (int i = 1; i < isLock.Length; i++)
-            isLock[i] = true;
+
+        // 저장되있던 데이터 저장
+        DateLoad.GetIsLockDate(nameof(isLock), out isLock);
+
         // 상점 정보 초기화
         JellyShopInfoChange();
         // 플레이어 능력 정보 초기화

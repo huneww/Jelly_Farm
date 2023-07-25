@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEditor.Animations;
 using UnityEngine;
 using UnityEngine.UI;
+using Date;
 
 public class GameManager : MonoBehaviour
 {
@@ -111,9 +112,6 @@ public class GameManager : MonoBehaviour
     [Tooltip("젤리 이동 영역")]
     public BoxCollider2D jellyBoundBox;
 
-    [SerializeField, Tooltip("마우스 클릭시 추출할 레이어")]
-    private LayerMask jellyMask;
-
     [SerializeField, Tooltip("재화가 증가하는데 걸리는 시간")]
     private float moneyIncreaseTime = 1f;
 
@@ -153,6 +151,13 @@ public class GameManager : MonoBehaviour
     private void Awake()
     {
         DontDestroyOnLoad(gameObject);
+
+        // 저장되있던 데이터 저장
+        jellyMoney = DateLoad.GetIntDate(nameof(jellyMoney));
+        goldMoney = DateLoad.GetIntDate(nameof(goldMoney));
+        jellyMaxVolume = DateLoad.GetIntDate("jellySizeLevel") * 2;
+        clickCount = DateLoad.GetIntDate("clickLevel");
+        
 
         jellyText.text = string.Format("{0:#,###0}", jellyMoney);
         goldText.text = string.Format("{0:#,###0}", goldMoney);
