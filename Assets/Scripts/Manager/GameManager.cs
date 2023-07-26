@@ -1,6 +1,5 @@
 using System.Collections;
 using System.Collections.Generic;
-using UnityEditor.Animations;
 using UnityEngine;
 using UnityEngine.UI;
 using Date;
@@ -116,8 +115,8 @@ public class GameManager : MonoBehaviour
     private float moneyIncreaseTime = 1f;
 
     [Tooltip("젤리 애니메이터 컨트롤러")]
-    public AnimatorController[] jellyAnimator;
-
+    public RuntimeAnimatorController[] jellyAnimator;
+   
     [SerializeField, Tooltip("젤리를 팔수 있는 상태인지 확인 변수")]
     private bool isSell;
     // 젤리를 팔수 있는 상태 확인 변수의 프로퍼티
@@ -158,9 +157,24 @@ public class GameManager : MonoBehaviour
         jellyMaxVolume = DateLoad.GetIntDate("jellySizeLevel") * 2;
         clickCount = DateLoad.GetIntDate("clickLevel");
         
-
+        // 보유 제화 텍스트 변경
         jellyText.text = string.Format("{0:#,###0}", jellyMoney);
         goldText.text = string.Format("{0:#,###0}", goldMoney);
+
+        // 젤리 스폰
+        for (int i = 1; i <= jellyMaxVolume; i++)
+        {
+            int jellyLevel;
+            int jellyTouchCount;
+            int jellyIndex;
+
+            DateLoad.GetJellyDate("Jelly" + (i * 2), out jellyLevel, out jellyTouchCount, out jellyIndex);
+
+            if (jellyLevel != -1)
+            {
+                JellySpawner.Instance.JellySpawn(jellyIndex, i * 2, jellyLevel, jellyTouchCount);
+            }
+        }
     }
 
     /// <summary>

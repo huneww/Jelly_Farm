@@ -1,3 +1,4 @@
+using Date;
 using System.Collections;
 using System.Collections.Generic;
 using Unity.VisualScripting;
@@ -14,11 +15,23 @@ public class JellyTouch : MonoBehaviour
 
     // 현재 터치 횟수
     private int touchCount = 0;
+    // 현재 터치 횟수 프로퍼티
+    public int TouchCount
+    {
+        get
+        {
+            return touchCount;
+        }
+        set
+        {
+            touchCount = value;
+        }
+    }
     // 몇 초동안 누르고 있었는지 확인 변수
     private float dragCurTime = 0;
     // 현재 드래그 상태인지 확인 변수
     private bool isDrag = false;
-
+    // 드래그 상태인지 확인 변수 프로퍼티
     public bool IsDrag
     {
         get
@@ -68,7 +81,7 @@ public class JellyTouch : MonoBehaviour
             transform.position = Camera.main.ScreenToWorldPoint(Input.mousePosition);
             // 오브젝트의 Y축을 yOffset값 만큼 빼서 저장
             transform.position = new Vector3(transform.position.x, transform.position.y - yOffset, 0);
-
+            // 움직이는 코루틴 정지
             Jelly.StopMoveCoroutine();
         }
     }
@@ -111,7 +124,7 @@ public class JellyTouch : MonoBehaviour
                 {
                     GameManager.Instance.SelectJelly = null;
                 }
-
+                // 다시 움직이는 코루틴 실행
                 Jelly.StartMoveCoroutine();
             }
             return;
@@ -142,6 +155,9 @@ public class JellyTouch : MonoBehaviour
 
         // 젤리 터치 카운트 증가
         touchCount++;
+
+        touchCount = touchCount >= 50 ? 50 : touchCount;
+
         // 터치 카운트가 20이상이고 애니메이터 컨트롤러가 1레벨 컨트롤러라면
         if (touchCount >= 20 && animator.runtimeAnimatorController == GameManager.Instance.jellyAnimator[0])
         {
@@ -162,6 +178,9 @@ public class JellyTouch : MonoBehaviour
             // 성장 효과음 재생
             AudioManager.PlaySFXAudioSource(SFX.Grow);
         }
+
+        // 젤리 정보 저장
+        DateSave.SetJellyDate(jelly.level, touchCount, jelly.index, jelly.bitValue);
     }
 
 }

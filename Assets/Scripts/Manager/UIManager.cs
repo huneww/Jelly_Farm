@@ -254,12 +254,11 @@ public class UIManager : MonoBehaviour
             GameManager.Instance.GoldMoney -= jellyBuyPayList[curJellyView];
             // 젤리 스폰
             JellySpawner.Instance.JellySpawn(curJellyView);
+
             // 골드 텍스트 감소
             StartCoroutine(GameManager.Instance.UpDownGoldText(
                            GameManager.Instance.GoldMoney + jellyBuyPayList[curJellyView],
                            GameManager.Instance.GoldMoney));
-            // 현재 수용중인 젤리 수량 증가
-            GameManager.Instance.CurJellyVolume++;
             // 구매 효과음 재생
             AudioManager.PlaySFXAudioSource(SFX.Buy);
         }

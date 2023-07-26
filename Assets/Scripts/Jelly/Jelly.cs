@@ -1,6 +1,6 @@
+using Date;
 using System.Collections;
 using System.Collections.Generic;
-using UnityEditor.Animations;
 using UnityEngine;
 using UnityEngine.EventSystems;
 
@@ -28,42 +28,53 @@ public class Jelly : MonoBehaviour
     [Tooltip("레벨별 골드 획득 양")]
     public int[] gold;
 
-    [Space(20), Header("기타")]
-
-
+    [HideInInspector]
+    // 젤리 인덱스값 저장 변수
+    public int index;
+    [HideInInspector]
+    // 젤리 저장에 쓰일 비트값 저장 변수
+    public int bitValue;
+    
     private BoxCollider2D boxcollider;
     private Animator animator;
     private Vector2 movePos;
+    private JellyTouch jellyTouch;
 
+    // Move코루틴 메서드 실행, 정지시키는 Action 변수
     public static System.Action StartMoveCoroutine;
     public static System.Action StopMoveCoroutine;
-
+    // Move코루틴 저장 변수
     private IEnumerator moveCoroutine;
 
     private void Start()
     {
         boxcollider = GetComponent<BoxCollider2D>();
         animator = GetComponent<Animator>();
+        jellyTouch = GetComponent<JellyTouch>();
 
+        // Action변수에 메서드 저장
         StartMoveCoroutine = () => { StartCoroutineMethod(); };
         StopMoveCoroutine = () => { StopCoroutineMethod(); };
-
-        // 레벨 1 애니메이터컨트롤러로 변경
-        animator.runtimeAnimatorController = GameManager.Instance.jellyAnimator[0];
-
+        // 젤리 소환시 데이터 저장
+        DateSave.SetJellyDate(level, jellyTouch.TouchCount, index, bitValue);
+        // Move 코루틴 실행 메서드
         StartCoroutineMethod();
 
     }
 
     private void StartCoroutineMethod()
     {
+        // Move 코루틴 저장
         moveCoroutine = Move();
+        // 코루틴 실행
         StartCoroutine(moveCoroutine);
     }
 
     private void StopCoroutineMethod()
     {
+        // 애니메이션 변경
         animator.SetBool("isWalk", false);
+        // 코루틴 정지
         StopCoroutine(moveCoroutine);
     }
 
@@ -96,9 +107,12 @@ public class Jelly : MonoBehaviour
 
         while (percent < 1f)
         {
+            // 젤리가 드래그 상태가 되면
             if (GetComponent<JellyTouch>().IsDrag)
             {
+                // 애니메이션 변경
                 animator.SetBool("isWalk", false);
+                // 코루틴 메서드 중지
                 yield break;
             }
 

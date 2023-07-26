@@ -3,15 +3,12 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.EventSystems;
 
-public class test : MonoBehaviour, IPointerEnterHandler, IPointerUpHandler
+public class test : MonoBehaviour
 {
-    public void OnPointerEnter(PointerEventData eventData)
-    {
-        Debug.Log("Enter");
-    }
+    public float a;
 
-    public void OnPointerUp(PointerEventData eventData)
+    private void Start()
     {
-        Debug.Log("PointerUp");
+        a = PlayerPrefs.GetFloat("asdfasdfasdfasdf");
     }
 }
